@@ -1,10 +1,15 @@
 INCLUDE Irvine32.inc
 .data
-	; declare variables here
+	string byte "Hello World!",0
 .code
 main proc
-	; write your code here
-
+	mov ecx, lengthof string - 1
+	mov eax, offset string
+	mov esi, 0
+	call WriteString
+L1:
+	
+	
 	invoke ExitProcess,0
 main endp
 end main
