@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.38.33130.0	    12/11/23 01:37:30
+Microsoft (R) Macro Assembler Version 14.38.33130.0	    12/11/23 12:19:03
 main.asm						     Page 1 - 1
 
 
@@ -29,6 +29,8 @@ main.asm						     Page 1 - 1
  00000000 48 65 6C 6C 6F		string byte "Hello", 0
 	   00
  00000006 02				correct byte 2 
+ 00000007 0000000F			lastColor dword 15+(0*16)
+ 0000000B 00000000			msec DWORD 0
  00000000			.code
  00000000			main proc
 						;set white text / black bkg
@@ -63,113 +65,116 @@ main.asm						     Page 1 - 1
  00000044  74 19				je G
  00000046  80 3D 00000006 R			cmp correct,0
 	   00
- 0000004D  74 1E				je R
+ 0000004D  74 23				je R
  0000004F  EB 00				jmp NEUTRAL
  00000051				NEUTRAL:
  00000051  50					push eax
- 00000052  B8 0000000F				mov eax, 15+(0*16)
+ 00000052  A1 00000007 R			mov eax, lastColor
  00000057  E8 00000000 E			call SetTextColor
  0000005C  58					pop eax
- 0000005D  EB 1C				jmp PRINT
+ 0000005D  EB 26				jmp PRINT
  0000005F				G:
  0000005F  50					push eax
  00000060  B8 00000002				mov eax, 2+(0*16)
  00000065  E8 00000000 E			call SetTextColor
- 0000006A  58					pop eax
- 0000006B  EB 0E				jmp PRINT
- 0000006D				R:
- 0000006D  50					push eax
- 0000006E  B8 00000004				mov eax, 4+(0*16)
- 00000073  E8 00000000 E			call SetTextColor
- 00000078  58					pop eax
- 00000079  EB 00				jmp PRINT
- 0000007B				PRINT:
- 0000007B  83 F9 00				cmp ecx,0
- 0000007E  74 10				jz REST
- 00000080  50					push eax
- 00000081  8A 86 00000000 R			mov al, string[esi]
- 00000087  E8 00000000 E			call WriteChar
- 0000008C  58					pop eax
- 0000008D  46					inc esi
- 0000008E  E2 EB				loop PRINT
- 00000090				REST:
- 00000090  B9 00000005				mov ecx,lengthof string - 1
- 00000095  50					push eax
- 00000096  0F B6 C7				movzx eax, bh
- 00000099  2B C8				sub ecx,eax
- 0000009B  B8 0000000F				mov eax, 15+(0*16)
- 000000A0  E8 00000000 E			call SetTextColor
- 000000A5  58					pop eax
- 000000A6  8B FE				mov edi,esi
- 000000A8				RESTPRINT:
- 000000A8  83 FF 05				cmp edi, (lengthof string - 1)
- 000000AB  73 67				jae DONE
- 000000AD  50					push eax
- 000000AE  8A 87 00000000 R			mov al, string[edi]
- 000000B4  E8 00000000 E			call WriteChar
- 000000B9  58					pop eax
- 000000BA  47					inc edi
- 000000BB  E2 EB				loop RESTPRINT
+ 0000006A  A3 00000007 R			mov lastColor,eax
+ 0000006F  58					pop eax
+ 00000070  EB 13				jmp PRINT
+ 00000072				R:
+ 00000072  50					push eax
+ 00000073  B8 00000004				mov eax, 4+(0*16)
+ 00000078  E8 00000000 E			call SetTextColor
+ 0000007D  A3 00000007 R			mov lastColor,eax
+ 00000082  58					pop eax
+ 00000083  EB 00				jmp PRINT
+ 00000085				PRINT:
+ 00000085  83 F9 00				cmp ecx,0
+ 00000088  74 10				jz REST
+ 0000008A  50					push eax
+ 0000008B  8A 86 00000000 R			mov al, string[esi]
+ 00000091  E8 00000000 E			call WriteChar
+ 00000096  58					pop eax
+ 00000097  46					inc esi
+ 00000098  E2 EB				loop PRINT
+ 0000009A				REST:
+ 0000009A  B9 00000005				mov ecx,lengthof string - 1
+ 0000009F  50					push eax
+ 000000A0  0F B6 C7				movzx eax, bh
+ 000000A3  2B C8				sub ecx,eax
+ 000000A5  B8 0000000F				mov eax, 15+(0*16)
+ 000000AA  E8 00000000 E			call SetTextColor
+ 000000AF  58					pop eax
+ 000000B0  8B FE				mov edi,esi
+ 000000B2				RESTPRINT:
+ 000000B2  83 FF 05				cmp edi, (lengthof string - 1)
+ 000000B5  73 76				jae DONE
+ 000000B7  50					push eax
+ 000000B8  8A 87 00000000 R			mov al, string[edi]
+ 000000BE  E8 00000000 E			call WriteChar
+ 000000C3  58					pop eax
+ 000000C4  47					inc edi
+ 000000C5  E2 EB				loop RESTPRINT
 						
 
- 000000BD			TIME:
-					
+ 000000C7			TIME:
 					mGotoxy bh,bl
- 000000BD  52		     1		push edx
- 000000BE  8A F3	     1		mov  dh,bl
- 000000C0  8A D7	     1		mov  dl,bh
- 000000C2  E8 00000000 E     1		call Gotoxy
- 000000C7  5A		     1		pop  edx
-						;falls one line
- 000000C8  FE C3			inc bl
-					
-						;reads char
- 000000CA  53				push ebx
- 000000CB  E8 00000000 E		call ReadKey
- 000000D0  5B				pop ebx
- 000000D1  9C				pushfd
-						;clear screen before print next line
- 000000D2  E8 00000000 E		call Clrscr
- 000000D7  9D				popfd
- 000000D8  75 19			jnz READ
-						;if no input
-					
-					
-					
- 000000DA  50				push eax
-						;for delay
- 000000DB  B8 000003E8			mov eax,1000 
-						;moves cursor pos to last char input
- 000000E0  E8 00000000 E		call Delay
- 000000E5  58				pop eax
- 000000E6  C6 05 00000006 R		mov correct,2
+ 000000C7  52		     1		push edx
+ 000000C8  8A F3	     1		mov  dh,bl
+ 000000CA  8A D7	     1		mov  dl,bh
+ 000000CC  E8 00000000 E     1		call Gotoxy
+ 000000D1  5A		     1		pop  edx
+ 000000D2  50				push eax
+ 000000D3  E8 00000000 E		call GetMseconds
+ 000000D8  39 05 0000000B R		cmp msec, eax
+ 000000DE  58				pop eax
+ 000000DF  73 17			jae READK
+ 000000E1  9C				pushfd
+ 000000E2  81 05 0000000B R		add msec,1000
+	   000003E8
+ 000000EC  9D				popfd
+ 000000ED  C6 05 00000006 R		mov correct,2
 	   02
- 000000ED  0F 84 FFFFFF37		jz FALL
+						;falls one line
+ 000000F4  FE C3			inc bl
+ 000000F6  EB 0B			jmp NOINPUT
+ 000000F8			READK:
+						;reads char
+ 000000F8  53				push ebx
+ 000000F9  E8 00000000 E		call ReadKey
+ 000000FE  5B				pop ebx
+ 000000FF  75 0E			jnz READ
+ 00000101  EB C4			jmp TIME
+ 00000103			NOINPUT:
+ 00000103  9C				pushfd
+						;clear screen before print next line
+ 00000104  E8 00000000 E		call Clrscr
+ 00000109  9D				popfd
+ 0000010A  E9 FFFFFF1B			jmp FALL
 
- 000000F3			READ:
+ 0000010F			READ:
 							;check input
- 000000F3  3A 86 00000000 R			cmp al, string[esi]
- 000000F9  75 09				jnz WRONG
- 000000FB				RIGHT:
- 000000FB  C6 05 00000006 R			mov correct,1
+ 0000010F  3A 86 00000000 R			cmp al, string[esi]
+ 00000115  75 09				jnz WRONG
+ 00000117				RIGHT:
+ 00000117  C6 05 00000006 R			mov correct,1
 	   01
- 00000102  EB 09				jmp CONT
- 00000104				WRONG:
- 00000104  C6 05 00000006 R			mov correct,0
+ 0000011E  EB 09				jmp CONT
+ 00000120				WRONG:
+ 00000120  C6 05 00000006 R			mov correct,0
 	   00
- 0000010B  EB 02				jmp NOCONT
- 0000010D				CONT:
- 0000010D  FE C7				inc bh
- 0000010F				NOCONT:
- 0000010F  E9 FFFFFF16				jmp FALL
+ 00000127  EB 02				jmp NOCONT
+ 00000129				CONT:
+ 00000129  FE C7				inc bh
+ 0000012B				NOCONT:
+ 0000012B  EB D6				jmp NOINPUT
 
- 00000114			DONE:
+ 0000012D			DONE:
 					
 
 					invoke ExitProcess,0
- 0000011B			main endp
+ 00000134			main endp
 				end main
-Microsoft (R) Macro Assembler Version 14.38.33130.0	    12/11/23 01:37:30
+Microsoft (R) Macro Assembler Version 14.38.33130.0	    12/11/23 12:19:03
 main.asm						     Symbols 2 - 1
 
 
@@ -281,8 +286,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000007 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 0000011B Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 0000000F Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000134 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -389,22 +394,24 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000011B Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000134 Public STDCALL
   FALL . . . . . . . . . . . . .	L Near	 0000002A _TEXT	
   CHECK  . . . . . . . . . . . .	L Near	 0000003D _TEXT	
   NEUTRAL  . . . . . . . . . . .	L Near	 00000051 _TEXT	
   G  . . . . . . . . . . . . . .	L Near	 0000005F _TEXT	
-  R  . . . . . . . . . . . . . .	L Near	 0000006D _TEXT	
-  PRINT  . . . . . . . . . . . .	L Near	 0000007B _TEXT	
-  REST . . . . . . . . . . . . .	L Near	 00000090 _TEXT	
-  RESTPRINT  . . . . . . . . . .	L Near	 000000A8 _TEXT	
-  TIME . . . . . . . . . . . . .	L Near	 000000BD _TEXT	
-  READ . . . . . . . . . . . . .	L Near	 000000F3 _TEXT	
-  RIGHT  . . . . . . . . . . . .	L Near	 000000FB _TEXT	
-  WRONG  . . . . . . . . . . . .	L Near	 00000104 _TEXT	
-  CONT . . . . . . . . . . . . .	L Near	 0000010D _TEXT	
-  NOCONT . . . . . . . . . . . .	L Near	 0000010F _TEXT	
-  DONE . . . . . . . . . . . . .	L Near	 00000114 _TEXT	
+  R  . . . . . . . . . . . . . .	L Near	 00000072 _TEXT	
+  PRINT  . . . . . . . . . . . .	L Near	 00000085 _TEXT	
+  REST . . . . . . . . . . . . .	L Near	 0000009A _TEXT	
+  RESTPRINT  . . . . . . . . . .	L Near	 000000B2 _TEXT	
+  TIME . . . . . . . . . . . . .	L Near	 000000C7 _TEXT	
+  READK  . . . . . . . . . . . .	L Near	 000000F8 _TEXT	
+  NOINPUT  . . . . . . . . . . .	L Near	 00000103 _TEXT	
+  READ . . . . . . . . . . . . .	L Near	 0000010F _TEXT	
+  RIGHT  . . . . . . . . . . . .	L Near	 00000117 _TEXT	
+  WRONG  . . . . . . . . . . . .	L Near	 00000120 _TEXT	
+  CONT . . . . . . . . . . . . .	L Near	 00000129 _TEXT	
+  NOCONT . . . . . . . . . . . .	L Near	 0000012B _TEXT	
+  DONE . . . . . . . . . . . . .	L Near	 0000012D _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -631,6 +638,7 @@ cyan . . . . . . . . . . . . . .	Number	 00000003h
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
+lastColor  . . . . . . . . . . .	DWord	 00000007 _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
 lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
 lightGray  . . . . . . . . . . .	Number	 00000007h   
@@ -638,6 +646,7 @@ lightGreen . . . . . . . . . . .	Number	 0000000Ah
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
+msec . . . . . . . . . . . . . .	DWord	 0000000B _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
 string . . . . . . . . . . . . .	Byte	 00000000 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   

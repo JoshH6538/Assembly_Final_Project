@@ -4,6 +4,8 @@ INCLUDE Macros.inc
 .data
 	string byte "Hello", 0
 	correct byte 2 
+	lastColor dword 15+(0*16)
+	msec DWORD 0
 .code
 main proc
 		;set white text / black bkg
@@ -26,7 +28,7 @@ FALL:
 		jmp NEUTRAL
 	NEUTRAL:
 		push eax
-		mov eax, 15+(0*16)
+		mov eax, lastColor
 		call SetTextColor
 		pop eax
 		jmp PRINT
@@ -34,12 +36,14 @@ FALL:
 		push eax
 		mov eax, 2+(0*16)
 		call SetTextColor
+		mov lastColor,eax
 		pop eax
 		jmp PRINT
 	R:
 		push eax
 		mov eax, 4+(0*16)
 		call SetTextColor
+		mov lastColor,eax
 		pop eax
 		jmp PRINT
 	PRINT:
@@ -72,29 +76,32 @@ FALL:
 		
 
 TIME:
-	
 	mGotoxy bh,bl
+	push eax
+	call GetMseconds
+	cmp msec, eax
+	pop eax
+	jae READK
+	pushfd
+	add msec,1000
+	popfd
+	mov correct,2
 		;falls one line
 	inc bl
-	
+	jmp NOINPUT
+READK:
 		;reads char
 	push ebx
 	call ReadKey
 	pop ebx
+	jnz READ
+	jmp TIME
+NOINPUT:
 	pushfd
 		;clear screen before print next line
 	call Clrscr
 	popfd
-	jnz READ
-		;if no input
-	push eax
-		;for delay
-	mov eax,1000 
-		;moves cursor pos to last char input
-	call Delay
-	pop eax
-	mov correct,2
-	jz FALL
+	jmp FALL
 
 READ:
 			;check input
@@ -109,7 +116,7 @@ READ:
 	CONT:
 		inc bh
 	NOCONT:
-		jmp FALL
+		jmp NOINPUT
 
 DONE:
 	
