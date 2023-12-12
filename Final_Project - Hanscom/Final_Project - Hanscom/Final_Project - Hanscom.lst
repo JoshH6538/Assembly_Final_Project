@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.37.32824.0	    12/11/23 15:23:09
+Microsoft (R) Macro Assembler Version 14.38.33130.0	    12/12/23 14:40:12
 main.asm						     Page 1 - 1
 
 
@@ -26,162 +26,1073 @@ main.asm						     Page 1 - 1
 			      C 
 
  00000000			.data
- 00000000 48 65 6C 6C 6F		string byte "Hello", 0
-	   00
- 00000006 02				correct byte 2 
- 00000007 0000000F			lastColor dword 15+(0*16)
- 0000000B 00000000			msec DWORD 0
- 0000000F 00000000			StartTime DWORD ?
+ 00000000  00000050 [			string1 byte 80 DUP (?)
+	    00
+	   ]
+ 00000050  00000050 [			string2 byte 80 DUP (?)
+	    00
+	   ]
+ 000000A0  00000050 [			string3 byte 80 DUP (?)
+	    00
+	   ]
+ 000000F0  00000050 [			string4 byte 80 DUP (?)
+	    00
+	   ]
+				    
+ 00000140 14 00				coord1	byte 20,0
+ 00000142 28 00				coord2	byte 40,0
+ 00000144 3C 00				coord3	byte 60,0
+ 00000146 50 00				coord4	byte 80,0
+
+ 00000148 14 00				casc1	byte 20,0
+ 0000014A 28 00				casc2	byte 40,0
+ 0000014C 3C 00				casc3	byte 60,0
+ 0000014E 50 00				casc4	byte 80,0
+
+ 00000150 00000000			size1 dword ?
+ 00000154 00000000			size2 dword ?
+ 00000158 00000000			size3 dword ?
+ 0000015C 00000000			size4 dword ?
+
+ 00000160  00000014 [		    current byte 20 DUP(?)
+	    00
+	   ]
+ 00000174 00000000			current_size dword ?
+ 00000178  00000002 [		    cc      byte 2 DUP(?)
+	    00
+	   ]
+ 0000017A 00				startposx byte ?
+
+ 0000017B 02				correct byte 2
+ 0000017C 0000000F			lastColor dword 15+(0*16)
+
+ 00000180 00000000			msec DWORD 0
+ 00000184 00000000			StartTime DWORD ?
+ 00000188 00000000			off1 dword ?
+ 0000018C 00000000			off2 dword ?
+ 00000190 00000000			off3 dword ?
+ 00000194 00000000			off4 dword ?
+
+ 00000198  00000078 [			line byte 120 DUP('-')
+	    2D
+	   ]
+
+ 00000210 00000000			second dword 0
+
+ 00000214 00000000			totalcount dword 0
+ 00000218 00000000			correctcount dword 0
+ 0000021C 00000000			wordstyped dword 0
+ 00000220 00000000			wordsmissed dword 0
+ 00000224 00				missed byte 0
+
+ 00000225 01				first byte 1
+ 00000226 00000000			firstsize dword ?
+
+ = 0000001E				LIMIT=30
+ = 0000001B				LINEHEIGHT=27
+ = 000003E8			    TICK=1000
+ = 00000100				BUFMAX=256
+ = 00000100				BUFMAXHEX=100h
+
+ 0000022A 77 6F 72 64 73		filename byte "words.txt"
+	   2E 74 78 74
+ 00000233 00000000			filehandle handle ?
+ 00000237  00000101 [			buffer byte BUFMAX+1 DUP(0)
+	    00
+	   ]
+ 00000338 00000000			bytesRead dword ?
+
+ 0000033C 00000000			bufind dword 0
+
  00000000			.code
  00000000			main proc
- 00000000  E8 00000000 E		call GetMseconds
- 00000005  A3 0000000F R		mov StartTime, eax
- 0000000A  A3 0000000B R		mov msec,eax
-						;set white text / black bkg
- 0000000F  B8 0000000F			mov eax, 15+(0*16)
- 00000014  E8 00000000 E		call SetTextColor
- 00000019  B8 00000000			mov eax,0
-					mWriteString OFFSET	string
- 0000001E  52		     1		push edx
- 0000001F  BA 00000000 R     1		mov  edx,OFFSET OFFSET	string
- 00000024  E8 00000000 E     1		call WriteString
- 00000029  5A		     1		pop  edx
- 0000002A  B3 00			mov bl, 0
- 0000002C  B7 00			mov bh, 0
-					mGotoxy bh,bl
- 0000002E  52		     1		push edx
- 0000002F  8A F3	     1		mov  dh,bl
- 00000031  8A D7	     1		mov  dl,bh
- 00000033  E8 00000000 E     1		call Gotoxy
- 00000038  5A		     1		pop  edx
- 00000039			FALL:
-					mGotoxy 0,bl
- 00000039  52		     1		push edx
- 0000003A  8A F3	     1		mov  dh,bl
- 0000003C  B2 00	     1		mov  dl,0
- 0000003E  E8 00000000 E     1		call Gotoxy
- 00000043  5A		     1		pop  edx
- 00000044  0F B6 CF			movzx ecx,bh
- 00000047  BE 00000000			mov esi,0
- 0000004C				CHECK:
- 0000004C  80 3D 00000006 R			cmp correct,1
-	   01
- 00000053  74 19				je G
- 00000055  80 3D 00000006 R			cmp correct,0
-	   00
- 0000005C  74 23				je R
- 0000005E  EB 00				jmp NEUTRAL
- 00000060				NEUTRAL:
- 00000060  50					push eax
- 00000061  A1 00000007 R			mov eax, lastColor
- 00000066  E8 00000000 E			call SetTextColor
- 0000006B  58					pop eax
- 0000006C  EB 26				jmp PRINT
- 0000006E				G:
- 0000006E  50					push eax
- 0000006F  B8 00000002				mov eax, 2+(0*16)
- 00000074  E8 00000000 E			call SetTextColor
- 00000079  A3 00000007 R			mov lastColor,eax
- 0000007E  58					pop eax
- 0000007F  EB 13				jmp PRINT
- 00000081				R:
- 00000081  50					push eax
- 00000082  B8 00000004				mov eax, 4+(0*16)
- 00000087  E8 00000000 E			call SetTextColor
- 0000008C  A3 00000007 R			mov lastColor,eax
- 00000091  58					pop eax
- 00000092  EB 00				jmp PRINT
- 00000094				PRINT:
- 00000094  83 F9 00				cmp ecx,0
- 00000097  74 10				jz REST
- 00000099  50					push eax
- 0000009A  8A 86 00000000 R			mov al, string[esi]
- 000000A0  E8 00000000 E			call WriteChar
- 000000A5  58					pop eax
- 000000A6  46					inc esi
- 000000A7  E2 EB				loop PRINT
- 000000A9				REST:
- 000000A9  B9 00000005				mov ecx,lengthof string - 1
- 000000AE  50					push eax
- 000000AF  0F B6 C7				movzx eax, bh
- 000000B2  2B C8				sub ecx,eax
- 000000B4  B8 0000000F				mov eax, 15+(0*16)
- 000000B9  E8 00000000 E			call SetTextColor
- 000000BE  58					pop eax
- 000000BF  8B FE				mov edi,esi
- 000000C1				RESTPRINT:
- 000000C1  83 FF 05				cmp edi, (lengthof string - 1)
- 000000C4  0F 83 00000083			jae DONE
- 000000CA  50					push eax
- 000000CB  8A 87 00000000 R			mov al, string[edi]
- 000000D1  E8 00000000 E			call WriteChar
- 000000D6  58					pop eax
- 000000D7  47					inc edi
- 000000D8  E2 E7				loop RESTPRINT
-						
+					;jmp GAME
+						;Menu
+					mGotoxy 55,10
+ 00000000  52		     1		push edx
+ 00000001  B6 0A	     1		mov  dh,10
+ 00000003  B2 37	     1		mov  dl,55
+ 00000005  E8 00000000 E     1		call Gotoxy
+ 0000000A  5A		     1		pop  edx
+					mWrite "TYPING GAME"
+ 00000340		     1		.data		
+ 00000340 54 59 50 49 4E     1		??0000 BYTE "TYPING GAME",0	
+	   47 20 47 41 4D
+	   45 00
+ 0000000B		     1		.code
+ 0000000B  52		     1		push	edx
+ 0000000C  BA 00000340 R     1		mov	edx,OFFSET ??0000
+ 00000011  E8 00000000 E     1		call	WriteString
+ 00000016  5A		     1		pop	edx
+ 00000017  B8 000003E8			mov eax, 1000
+ 0000001C  E8 00000000 E		call Delay
+					mGotoxy 49,12
+ 00000021  52		     1		push edx
+ 00000022  B6 0C	     1		mov  dh,12
+ 00000024  B2 31	     1		mov  dl,49
+ 00000026  E8 00000000 E     1		call Gotoxy
+ 0000002B  5A		     1		pop  edx
+					mWrite "Assembly Final Project"
+ 0000034C		     1		.data		
+ 0000034C 41 73 73 65 6D     1		??0001 BYTE "Assembly Final Project",0	
+	   62 6C 79 20 46
+	   69 6E 61 6C 20
+	   50 72 6F 6A 65
+	   63 74 00
+ 0000002C		     1		.code
+ 0000002C  52		     1		push	edx
+ 0000002D  BA 0000034C R     1		mov	edx,OFFSET ??0001
+ 00000032  E8 00000000 E     1		call	WriteString
+ 00000037  5A		     1		pop	edx
+ 00000038  B8 000005DC			mov eax, 1500
+ 0000003D  E8 00000000 E		call Delay
+					mGotoxy 51,14
+ 00000042  52		     1		push edx
+ 00000043  B6 0E	     1		mov  dh,14
+ 00000045  B2 33	     1		mov  dl,51
+ 00000047  E8 00000000 E     1		call Gotoxy
+ 0000004C  5A		     1		pop  edx
+					mWrite "By Joshua Hanscom"
+ 00000363		     1		.data		
+ 00000363 42 79 20 4A 6F     1		??0002 BYTE "By Joshua Hanscom",0	
+	   73 68 75 61 20
+	   48 61 6E 73 63
+	   6F 6D 00
+ 0000004D		     1		.code
+ 0000004D  52		     1		push	edx
+ 0000004E  BA 00000363 R     1		mov	edx,OFFSET ??0002
+ 00000053  E8 00000000 E     1		call	WriteString
+ 00000058  5A		     1		pop	edx
+ 00000059  B8 000005DC			mov eax, 1500
+ 0000005E  E8 00000000 E		call Delay
+ 00000063  E8 00000000 E		call ClrScr
+					mGotoxy 25,12
+ 00000068  52		     1		push edx
+ 00000069  B6 0C	     1		mov  dh,12
+ 0000006B  B2 19	     1		mov  dl,25
+ 0000006D  E8 00000000 E     1		call Gotoxy
+ 00000072  5A		     1		pop  edx
+					mWrite "1. Play"
+ 00000375		     1		.data		
+ 00000375 31 2E 20 50 6C     1		??0003 BYTE "1. Play",0	
+	   61 79 00
+ 00000073		     1		.code
+ 00000073  52		     1		push	edx
+ 00000074  BA 00000375 R     1		mov	edx,OFFSET ??0003
+ 00000079  E8 00000000 E     1		call	WriteString
+ 0000007E  5A		     1		pop	edx
+					mGotoxy 25,16
+ 0000007F  52		     1		push edx
+ 00000080  B6 10	     1		mov  dh,16
+ 00000082  B2 19	     1		mov  dl,25
+ 00000084  E8 00000000 E     1		call Gotoxy
+ 00000089  5A		     1		pop  edx
+					;mWrite "2. Scoreboard"
+					mGotoxy 0,0
+ 0000008A  52		     1		push edx
+ 0000008B  B6 00	     1		mov  dh,0
+ 0000008D  B2 00	     1		mov  dl,0
+ 0000008F  E8 00000000 E     1		call Gotoxy
+ 00000094  5A		     1		pop  edx
+ 00000095  E8 00000000 E		call ReadChar
+ 0000009A  3C 31			cmp al,'1'
+ 0000009C  74 00			je GAME
 
- 000000DA			TIME:
-					mGotoxy bh,bl
- 000000DA  52		     1		push edx
- 000000DB  8A F3	     1		mov  dh,bl
- 000000DD  8A D7	     1		mov  dl,bh
- 000000DF  E8 00000000 E     1		call Gotoxy
- 000000E4  5A		     1		pop  edx
- 000000E5  60				pushad
- 000000E6  B8 00000000			mov eax,0
- 000000EB  E8 00000000 E		call GetMseconds
- 000000F0  8B 1D 0000000B R		mov ebx,msec
- 000000F6  81 C3 000003E8		add ebx,1000
- 000000FC  3B C3			cmp eax,ebx
- 000000FE  61				popad
- 000000FF  72 17			jb READK
- 00000101  9C				pushfd
- 00000102  81 05 0000000B R		add msec,1000
+ 0000009E				GAME:
+ 0000009E  E8 00000000 E			call ClrScr
+						;jmp HERE
+						mGotoxy 0,LINEHEIGHT
+ 000000A3  52		     1		push edx
+ 000000A4  B6 1B	     1		mov  dh,LINEHEIGHT
+ 000000A6  B2 00	     1		mov  dl,0
+ 000000A8  E8 00000000 E     1		call Gotoxy
+ 000000AD  5A		     1		pop  edx
+ 000000AE  B9 00000078				mov ecx, 120
+ 000000B3				FLOURISH:
+ 000000B3  B8 0000000A				mov eax, 10
+ 000000B8  E8 00000000 E			call Delay
+						mWrite "-"
+ 0000037D		     1		.data		
+ 0000037D 2D 00		     1		??0004 BYTE "-",0	
+ 000000BD		     1		.code
+ 000000BD  52		     1		push	edx
+ 000000BE  BA 0000037D R     1		mov	edx,OFFSET ??0004
+ 000000C3  E8 00000000 E     1		call	WriteString
+ 000000C8  5A		     1		pop	edx
+ 000000C9  E2 E8				loop Flourish
+						;initialize time variables
+ 000000CB			HERE:
+ 000000CB  E8 00000000 E		call GetMseconds
+ 000000D0  A3 00000184 R		mov StartTime, eax
+ 000000D5  A3 00000180 R		mov msec,eax
+ 000000DA  A3 00000188 R		mov off1, eax
+ 000000DF  A3 0000018C R		mov off2, eax
+ 000000E4  81 05 0000018C R		add off2, 2000
+	   000007D0
+ 000000EE  A3 00000190 R		mov off3, eax
+ 000000F3  81 05 00000190 R		add off3, 4000
+	   00000FA0
+ 000000FD  A3 00000194 R		mov off4, eax
+ 00000102  81 05 00000194 R		add off4, 6000
+	   00001770
+					
+
+ 0000010C  BA 0000022A R		mov edx, offset filename
+ 00000111  E8 00000000 E		call OpenInputFile
+ 00000116  A3 00000233 R		mov filehandle,eax
+ 0000011B  BA 00000237 R		mov edx, offset buffer
+ 00000120  B9 00000100			mov ecx, BUFMAX
+ 00000125  E8 00000000 E		call ReadFromFile
+ 0000012A  A3 00000338 R		mov bytesRead, eax
+ 0000012F  BA 00000237 R		mov edx, offset buffer
+					;call WriteString
+ 00000134  BE 00000000			mov esi,0
+ 00000139  BF 00000000			mov edi,0
+
+ 0000013E			FILEW1:
+ 0000013E  BE 00000000			mov esi, 0
+ 00000143  8B 3D 0000033C R		mov edi, bufind
+ 00000149  81 FF 00000100		cmp edi, BUFMAX
+ 0000014F  0F 83 00000726		jae COMPLETE
+ 00000155			WORD1:
+ 00000155  80 BF 00000237 R		cmp buffer[edi],10
+	   0A
+ 0000015C  74 10			je NEWWORD1
+ 0000015E  8A 87 00000237 R		mov al, buffer[edi]
+ 00000164  88 86 00000000 R		mov string1[esi],al
+ 0000016A  46				inc esi
+ 0000016B  47				inc edi
+ 0000016C  EB E7			jmp WORD1
+ 0000016E			NEWWORD1:
+ 0000016E  47				inc edi
+ 0000016F			FILEDONE1:
+ 0000016F  89 3D 0000033C R		mov bufind,edi
+ 00000175  89 35 00000150 R		mov size1, esi
+ 0000017B  89 35 00000226 R		mov firstsize,esi
+ 00000181  BE 00000000			mov esi,0
+ 00000186  80 3D 00000225 R		cmp first,1
+	   01
+ 0000018D  BF 00000000			mov edi,0
+ 00000192  74 05			je FILEW2
+ 00000194  E9 00000173			jmp SET2C
+
+ 00000199			FILEW2:
+ 00000199  BE 00000000			mov esi, 0
+ 0000019E  8B 3D 0000033C R		mov edi, bufind
+ 000001A4  81 FF 00000100		cmp edi, BUFMAX
+ 000001AA  0F 83 000006CB		jae COMPLETE
+ 000001B0			WORD2:
+ 000001B0  80 BF 00000237 R		cmp buffer[edi],10
+	   0A
+ 000001B7  74 10			je NEWWORD2
+ 000001B9  8A 87 00000237 R		mov al, buffer[edi]
+ 000001BF  88 86 00000050 R		mov string2[esi],al
+ 000001C5  46				inc esi
+ 000001C6  47				inc edi
+ 000001C7  EB E7			jmp WORD2
+ 000001C9			NEWWORD2:
+ 000001C9  47				inc edi
+ 000001CA			FILEDONE2:
+ 000001CA  89 3D 0000033C R		mov bufind,edi
+ 000001D0  89 35 00000154 R		mov size2, esi
+ 000001D6  BE 00000000			mov esi,0
+ 000001DB  80 3D 00000225 R		cmp first,1
+	   01
+ 000001E2  BF 00000000			mov edi,0
+ 000001E7  74 05			je FILEW3
+ 000001E9  E9 00000175			jmp SET3C
+
+ 000001EE			FILEW3:
+ 000001EE  BE 00000000			mov esi, 0
+ 000001F3  8B 3D 0000033C R		mov edi, bufind
+ 000001F9  81 FF 00000100		cmp edi, BUFMAX
+ 000001FF  0F 83 00000676		jae COMPLETE
+ 00000205			WORD3:
+ 00000205  80 BF 00000237 R		cmp buffer[edi],10
+	   0A
+ 0000020C  74 10			je NEWWORD3
+ 0000020E  8A 87 00000237 R		mov al, buffer[edi]
+ 00000214  88 86 000000A0 R		mov string3[esi],al
+ 0000021A  46				inc esi
+ 0000021B  47				inc edi
+ 0000021C  EB E7			jmp WORD3
+ 0000021E			NEWWORD3:
+ 0000021E  47				inc edi
+ 0000021F			FILEDONE3:
+ 0000021F  89 3D 0000033C R		mov bufind,edi
+ 00000225  89 35 00000158 R		mov size3, esi
+ 0000022B  BE 00000000			mov esi,0
+ 00000230  80 3D 00000225 R		cmp first,1
+	   01
+ 00000237  BF 00000000			mov edi,0
+ 0000023C  74 05			je FILEW4
+ 0000023E  E9 00000174			jmp SET4C
+
+ 00000243			FILEW4:
+ 00000243  BE 00000000			mov esi, 0
+ 00000248  8B 3D 0000033C R		mov edi, bufind
+ 0000024E  81 FF 00000100		cmp edi, BUFMAXHEX
+ 00000254  0F 83 00000621		jae COMPLETE
+ 0000025A			WORD4:
+ 0000025A  80 BF 00000237 R		cmp buffer[edi],10
+	   0A
+ 00000261  74 10			je NEWWORD4
+ 00000263  8A 87 00000237 R		mov al, buffer[edi]
+ 00000269  88 86 000000F0 R		mov string4[esi],al
+ 0000026F  46				inc esi
+ 00000270  47				inc edi
+ 00000271  EB E7			jmp WORD4
+ 00000273			NEWWORD4:
+ 00000273  47				inc edi
+ 00000274			FILEDONE4:
+ 00000274  89 3D 0000033C R		mov bufind,edi
+ 0000027A  89 35 0000015C R		mov size4, esi
+ 00000280  BE 00000000			mov esi,0
+ 00000285  80 3D 00000225 R		cmp first,1
+	   01
+ 0000028C  BF 00000000			mov edi,0
+ 00000291  74 2A			je FIRSTIT
+ 00000293  EB 17			jmp SET1C
+
+
+ 00000295			SETFSIZE:
+ 00000295  C6 05 00000225 R		mov first,0
+	   00
+ 0000029C  8B 35 00000226 R		mov esi, firstsize
+ 000002A2  89 35 00000174 R		mov current_size,esi
+ 000002A8  EB 13			jmp FIRSTIT
+ 000002AA			SET1:
+						;replace last word
+ 000002AA  EB 97			jmp FILEW4
+ 000002AC			SET1C:
+						;delay previous
+ 000002AC  81 05 00000194 R		add off4,10000
+	   00002710
+ 000002B6  C6 05 0000014F R		mov casc4[1],0
+	   00
+ 000002BD			FIRSTIT:
+ 000002BD  80 3D 00000225 R		cmp first,1
+	   01
+ 000002C4  74 CF			je SETFSIZE
+						;set current string1
+ 000002C6  50				push eax
+ 000002C7  A1 00000150 R		mov eax, size1
+ 000002CC  A3 00000174 R		mov current_size, eax
+ 000002D1  58				pop eax
+ 000002D2  8B 0D 00000174 R		mov ecx, current_size
+ 000002D8  BE 00000000			mov esi,0
+ 000002DD  C6 05 0000017B R		mov correct,2
+	   02
+					;mov current_size, lengthof string1
+ 000002E4  8A 1D 00000140 R		mov bl, coord1[0]
+ 000002EA  88 1D 00000178 R		mov cc[0],bl
+ 000002F0  88 1D 0000017A R		mov startposx,bl
+ 000002F6  8A 1D 00000149 R		mov bl, casc1[1]
+ 000002FC  88 1D 00000179 R		mov cc[1],bl
+ 00000302  E9 000000FF			jmp ASSIGN1
+
+ 00000307			SET2:
+						;replace last word
+ 00000307  E9 FFFFFE32			jmp FILEW1
+ 0000030C			SET2C:
+						;delay previous
+ 0000030C  81 05 00000188 R		add off1,10000
+	   00002710
+ 00000316  C6 05 00000149 R		mov casc1[1],0
+	   00
+						;set current string2
+ 0000031D  50				push eax
+ 0000031E  A1 00000154 R		mov eax, size2
+ 00000323  A3 00000174 R		mov current_size, eax
+ 00000328  58				pop eax
+ 00000329  8B 0D 00000174 R		mov ecx, current_size
+ 0000032F  BE 00000000			mov esi,0
+ 00000334  C6 05 0000017B R		mov correct,2
+	   02
+					;mov current_size, lengthof string2
+ 0000033B  8A 1D 00000142 R		mov bl, coord2[0]
+ 00000341  88 1D 00000178 R		mov cc[0],bl
+ 00000347  88 1D 0000017A R		mov startposx,bl
+ 0000034D  8A 1D 0000014B R		mov bl, casc2[1]
+ 00000353  88 1D 00000179 R		mov cc[1],bl
+ 00000359  E9 000000B9			jmp ASSIGN2
+
+ 0000035E			SET3:
+						;replace last word
+ 0000035E  E9 FFFFFE36			jmp FILEW2
+ 00000363			SET3C:
+						;delay previous
+ 00000363  81 05 0000018C R		add off2,10000
+	   00002710
+ 0000036D  C6 05 0000014B R		mov casc2[1],0
+	   00
+						;set current string3
+ 00000374  50				push eax
+ 00000375  A1 00000158 R		mov eax, size3
+ 0000037A  A3 00000174 R		mov current_size, eax
+ 0000037F  58				pop eax
+ 00000380  8B 0D 00000174 R		mov ecx, current_size
+ 00000386  BE 00000000			mov esi,0
+ 0000038B  C6 05 0000017B R		mov correct,2
+	   02
+ 00000392  8A 1D 00000144 R		mov bl, coord3[0]
+ 00000398  88 1D 00000178 R		mov cc[0],bl
+ 0000039E  88 1D 0000017A R		mov startposx,bl
+ 000003A4  8A 1D 0000014D R		mov bl, casc3[1]
+ 000003AA  88 1D 00000179 R		mov cc[1],bl
+ 000003B0  EB 76			jmp ASSIGN3
+ 000003B2			SET4:
+						;replace last word
+ 000003B2  E9 FFFFFE37			jmp FILEW3
+ 000003B7			SET4C:
+						;delay previous
+ 000003B7  81 05 00000190 R		add off3,10000
+	   00002710
+ 000003C1  C6 05 0000014D R		mov casc3[1],0
+	   00
+						;set current string4
+ 000003C8  BE 00000000			mov esi,0
+ 000003CD  C6 05 0000017B R		mov correct,2
+	   02
+ 000003D4  50				push eax
+ 000003D5  A1 0000015C R		mov eax, size4
+ 000003DA  A3 00000174 R		mov current_size, eax
+ 000003DF  58				pop eax
+ 000003E0  8B 0D 00000174 R		mov ecx, current_size
+ 000003E6  8A 1D 00000146 R		mov bl, coord4[0]
+ 000003EC  88 1D 00000178 R		mov cc[0],bl
+ 000003F2  88 1D 0000017A R		mov startposx,bl
+ 000003F8  8A 1D 0000014F R		mov bl, casc4[1]
+ 000003FE  88 1D 00000179 R		mov cc[1],bl
+ 00000404  EB 33			jmp ASSIGN4
+
+ 00000406			ASSIGN1:
+ 00000406  8A 86 00000000 R		mov al,string1[esi]
+ 0000040C  88 86 00000160 R		mov current[esi], al
+ 00000412  46				inc esi
+ 00000413  E2 F1			loop ASSIGN1
+ 00000415  EB 33			jmp DISPLAYSTR
+
+ 00000417			ASSIGN2:
+ 00000417  8A 86 00000050 R		mov al,string2[esi]
+ 0000041D  88 86 00000160 R		mov current[esi], al
+ 00000423  46				inc esi
+ 00000424  E2 F1			loop ASSIGN2
+ 00000426  EB 22			jmp DISPLAYSTR
+
+ 00000428			ASSIGN3:
+ 00000428  8A 86 000000A0 R		mov al,string3[esi]
+ 0000042E  88 86 00000160 R		mov current[esi], al
+ 00000434  46				inc esi
+ 00000435  E2 F1			loop ASSIGN3
+ 00000437  EB 11			jmp DISPLAYSTR
+
+ 00000439			ASSIGN4:
+ 00000439  8A 86 000000F0 R		mov al,string4[esi]
+ 0000043F  88 86 00000160 R		mov current[esi], al
+ 00000445  46				inc esi
+ 00000446  E2 F1			loop ASSIGN4
+ 00000448  EB 00			jmp DISPLAYSTR
+
+ 0000044A			DISPLAYSTR:
+					mGotoxy startposx,cc[1]
+ 0000044A  52		     1		push edx
+ 0000044B  8A 35 00000179 R  1		mov  dh,cc[1]
+ 00000451  8A 15 0000017A R  1		mov  dl,startposx
+ 00000457  E8 00000000 E     1		call Gotoxy
+ 0000045C  5A		     1		pop  edx
+					;set white text / black bkg
+ 0000045D  B8 0000000F			mov eax, 15+(0*16)
+ 00000462  E8 00000000 E		call SetTextColor
+ 00000467  B8 00000000			mov eax,0
+					mWriteString OFFSET	current
+ 0000046C  52		     1		push edx
+ 0000046D  BA 00000160 R     1		mov  edx,OFFSET OFFSET	current
+ 00000472  E8 00000000 E     1		call WriteString
+ 00000477  5A		     1		pop  edx
+
+ 00000478			FALL:
+						;prints timer
+					mGotoxy 100,1
+ 00000478  52		     1		push edx
+ 00000479  B6 01	     1		mov  dh,1
+ 0000047B  B2 64	     1		mov  dl,100
+ 0000047D  E8 00000000 E     1		call Gotoxy
+ 00000482  5A		     1		pop  edx
+ 00000483  50				push eax
+ 00000484  A1 00000210 R		mov eax,second
+ 00000489  E8 00000000 E		call WriteDec
+ 0000048E  58				pop eax
+						;prints white or red line
+ 0000048F  80 3D 00000224 R		cmp missed,1
+	   01
+ 00000496  75 0C			jne BOTLINE
+ 00000498  B8 00000004			mov eax, 4+(0*16)
+ 0000049D  E8 00000000 E		call SetTextColor
+ 000004A2  EB 11			jmp BOTLINE2
+ 000004A4			BOTLINE:
+ 000004A4  B8 0000000F			mov eax, 15+(0*16)
+ 000004A9  E8 00000000 E		call SetTextColor
+ 000004AE  C6 05 00000224 R		mov missed,0
+	   00
+ 000004B5			BOTLINE2:
+					mGotoxy 0,LINEHEIGHT
+ 000004B5  52		     1		push edx
+ 000004B6  B6 1B	     1		mov  dh,LINEHEIGHT
+ 000004B8  B2 00	     1		mov  dl,0
+ 000004BA  E8 00000000 E     1		call Gotoxy
+ 000004BF  5A		     1		pop  edx
+					mWriteString offset line
+ 000004C0  52		     1		push edx
+ 000004C1  BA 00000198 R     1		mov  edx,OFFSET offset line
+ 000004C6  E8 00000000 E     1		call WriteString
+ 000004CB  5A		     1		pop  edx
+					mGotoxy startposx,cc[1]
+ 000004CC  52		     1		push edx
+ 000004CD  8A 35 00000179 R  1		mov  dh,cc[1]
+ 000004D3  8A 15 0000017A R  1		mov  dl,startposx
+ 000004D9  E8 00000000 E     1		call Gotoxy
+ 000004DE  5A		     1		pop  edx
+
+ 000004DF  0F B6 0D			movzx ecx,cc[0]
+	   00000178 R
+ 000004E6  0F B6 35			movzx esi, startposx
+	   0000017A R
+ 000004ED  2B CE			sub ecx, esi
+ 000004EF  BE 00000000			mov esi,0
+
+ 000004F4				CHECK:
+ 000004F4  80 3D 0000017B R			cmp correct,1
+	   01
+ 000004FB  74 19				je G
+ 000004FD  80 3D 0000017B R			cmp correct,0
+	   00
+ 00000504  74 23				je R
+ 00000506  EB 00				jmp NEUTRAL
+
+ 00000508				NEUTRAL:
+ 00000508  50					push eax
+ 00000509  A1 0000017C R			mov eax, lastColor
+ 0000050E  E8 00000000 E			call SetTextColor
+ 00000513  58					pop eax
+ 00000514  EB 26				jmp PRINT
+ 00000516				G:
+ 00000516  50					push eax
+ 00000517  B8 00000002				mov eax, 2+(0*16)
+ 0000051C  E8 00000000 E			call SetTextColor
+ 00000521  A3 0000017C R			mov lastColor,eax
+ 00000526  58					pop eax
+ 00000527  EB 13				jmp PRINT
+ 00000529				R:
+ 00000529  50					push eax
+ 0000052A  B8 00000004				mov eax, 4+(0*16)
+ 0000052F  E8 00000000 E			call SetTextColor
+ 00000534  A3 0000017C R			mov lastColor,eax
+ 00000539  58					pop eax
+ 0000053A  EB 00				jmp PRINT
+
+ 0000053C				PRINT:
+ 0000053C  83 F9 00				cmp ecx,0
+ 0000053F  74 31				jz REST
+ 00000541  50					push eax
+ 00000542  8A 86 00000160 R			mov al, current[esi]
+ 00000548  E8 00000000 E			call WriteChar
+ 0000054D  58					pop eax
+ 0000054E  46					inc esi
+ 0000054F  E2 EB				loop PRINT
+
+ 00000551  60					pushad
+ 00000552  0F B6 05				movzx eax,cc[0]
+	   00000178 R
+ 00000559  0F B6 1D				movzx ebx,startposx
+	   0000017A R
+ 00000560  2B C3				sub eax,ebx
+ 00000562  8B 1D 00000174 R			mov ebx,current_size
+ 00000568  4B					dec ebx
+ 00000569  3B C3				cmp eax, ebx
+ 0000056B  61					popad
+ 0000056C  0F 83 00000296			jae DONE
+
+ 00000572				REST:
+ 00000572  8B 0D 00000174 R			mov ecx,current_size
+ 00000578  50					push eax
+ 00000579  0F B6 05				movzx eax, cc[0]
+	   00000178 R
+ 00000580  0F B6 3D				movzx edi, startposx
+	   0000017A R
+ 00000587  2B C7				sub eax, edi
+ 00000589  2B C8				sub ecx,eax
+ 0000058B  B8 0000000F				mov eax, 15+(0*16)
+ 00000590  E8 00000000 E			call SetTextColor
+ 00000595  58					pop eax
+ 00000596  8B FE				mov edi,esi
+
+ 00000598				RESTPRINT:
+ 00000598  50					push eax
+ 00000599  8A 87 00000160 R			mov al, current[edi]
+ 0000059F  E8 00000000 E			call WriteChar
+ 000005A4  58					pop eax
+ 000005A5  47					inc edi
+ 000005A6  E2 F0				loop RESTPRINT
+
+ 000005A8				CASCADE:
+							;print string1
+ 000005A8  66| A1				mov ax, word ptr current
+	   00000160 R
+ 000005AE  66| 8B 1D				mov bx, word ptr string1
+	   00000000 R
+ 000005B5  66| 3B C3				cmp ax,bx
+ 000005B8  74 45				je PRINT2
+
+ 000005BA  8A 1D 00000148 R			mov bl,casc1[0]
+ 000005C0  8A 3D 00000149 R			mov bh,casc1[1]
+						mGotoxy bl,bh
+ 000005C6  52		     1		push edx
+ 000005C7  8A F7	     1		mov  dh,bh
+ 000005C9  8A D3	     1		mov  dl,bl
+ 000005CB  E8 00000000 E     1		call Gotoxy
+ 000005D0  5A		     1		pop  edx
+
+ 000005D1  60					pushad
+ 000005D2  B8 00000000				mov eax,0
+ 000005D7  E8 00000000 E			call GetMseconds
+ 000005DC  8B 1D 00000188 R			mov ebx,off1
+ 000005E2  81 C3 000003E8			add ebx,TICK
+ 000005E8  3B C3				cmp eax,ebx
+ 000005EA  61					popad
+ 000005EB  72 12				jb PRINT2
+
+						mWriteString offset string1
+ 000005ED  52		     1		push edx
+ 000005EE  BA 00000000 R     1		mov  edx,OFFSET offset string1
+ 000005F3  E8 00000000 E     1		call WriteString
+ 000005F8  5A		     1		pop  edx
+ 000005F9  FE 05 00000149 R			inc casc1[1]
+
+ 000005FF				PRINT2:
+							;print string2
+ 000005FF  66| A1				mov ax, word ptr current
+	   00000160 R
+ 00000605  66| 8B 1D				mov bx, word ptr string2
+	   00000050 R
+ 0000060C  66| 3B C3				cmp ax,bx
+ 0000060F  74 45				je PRINT3
+
+ 00000611  8A 1D 0000014A R			mov bl,casc2[0]
+ 00000617  8A 3D 0000014B R			mov bh,casc2[1]
+						mGotoxy bl,bh
+ 0000061D  52		     1		push edx
+ 0000061E  8A F7	     1		mov  dh,bh
+ 00000620  8A D3	     1		mov  dl,bl
+ 00000622  E8 00000000 E     1		call Gotoxy
+ 00000627  5A		     1		pop  edx
+ 00000628  60					pushad
+ 00000629  B8 00000000				mov eax,0
+ 0000062E  E8 00000000 E			call GetMseconds
+ 00000633  8B 1D 0000018C R			mov ebx,off2
+ 00000639  81 C3 000003E8			add ebx,TICK
+ 0000063F  3B C3				cmp eax,ebx
+ 00000641  61					popad
+ 00000642  72 12				jb PRINT3
+
+						mWriteString offset string2
+ 00000644  52		     1		push edx
+ 00000645  BA 00000050 R     1		mov  edx,OFFSET offset string2
+ 0000064A  E8 00000000 E     1		call WriteString
+ 0000064F  5A		     1		pop  edx
+ 00000650  FE 05 0000014B R			inc casc2[1]
+
+ 00000656				PRINT3:
+							;print string3
+ 00000656  66| A1				mov ax, word ptr current
+	   00000160 R
+ 0000065C  66| 8B 1D				mov bx, word ptr string3
+	   000000A0 R
+ 00000663  66| 3B C3				cmp ax,bx
+ 00000666  74 45				je PRINT4
+ 00000668  8A 1D 0000014C R			mov bl,casc3[0]
+ 0000066E  8A 3D 0000014D R			mov bh,casc3[1]
+						mGotoxy bl,bh
+ 00000674  52		     1		push edx
+ 00000675  8A F7	     1		mov  dh,bh
+ 00000677  8A D3	     1		mov  dl,bl
+ 00000679  E8 00000000 E     1		call Gotoxy
+ 0000067E  5A		     1		pop  edx
+
+ 0000067F  60					pushad
+ 00000680  B8 00000000				mov eax,0
+ 00000685  E8 00000000 E			call GetMseconds
+ 0000068A  8B 1D 00000190 R			mov ebx,off3
+ 00000690  81 C3 000003E8			add ebx,TICK
+ 00000696  3B C3				cmp eax,ebx
+ 00000698  61					popad
+ 00000699  72 12				jb PRINT4
+
+						mWriteString offset string3
+ 0000069B  52		     1		push edx
+ 0000069C  BA 000000A0 R     1		mov  edx,OFFSET offset string3
+ 000006A1  E8 00000000 E     1		call WriteString
+ 000006A6  5A		     1		pop  edx
+ 000006A7  FE 05 0000014D R			inc casc3[1]
+
+ 000006AD				PRINT4:
+							;print string4
+ 000006AD  66| A1				mov ax, word ptr current
+	   00000160 R
+ 000006B3  66| 8B 1D				mov bx, word ptr string4
+	   000000F0 R
+ 000006BA  66| 3B C3				cmp ax,bx
+ 000006BD  74 45				je TIME
+ 000006BF  8A 1D 0000014E R			mov bl,casc4[0]
+ 000006C5  8A 3D 0000014F R			mov bh,casc4[1]
+						mGotoxy bl,bh
+ 000006CB  52		     1		push edx
+ 000006CC  8A F7	     1		mov  dh,bh
+ 000006CE  8A D3	     1		mov  dl,bl
+ 000006D0  E8 00000000 E     1		call Gotoxy
+ 000006D5  5A		     1		pop  edx
+
+ 000006D6  60					pushad
+ 000006D7  B8 00000000				mov eax,0
+ 000006DC  E8 00000000 E			call GetMseconds
+ 000006E1  8B 1D 00000194 R			mov ebx,off4
+ 000006E7  81 C3 000003E8			add ebx,TICK
+ 000006ED  3B C3				cmp eax,ebx
+ 000006EF  61					popad
+ 000006F0  72 12				jb TIME
+
+						mWriteString offset string4
+ 000006F2  52		     1		push edx
+ 000006F3  BA 000000F0 R     1		mov  edx,OFFSET offset string4
+ 000006F8  E8 00000000 E     1		call WriteString
+ 000006FD  5A		     1		pop  edx
+ 000006FE  FE 05 0000014F R			inc casc4[1]
+						
+ 00000704			TIME:
+					mGotoxy cc[0],cc[1]
+ 00000704  52		     1		push edx
+ 00000705  8A 35 00000179 R  1		mov  dh,cc[1]
+ 0000070B  8A 15 00000178 R  1		mov  dl,cc[0]
+ 00000711  E8 00000000 E     1		call Gotoxy
+ 00000716  5A		     1		pop  edx
+ 00000717  60				pushad
+ 00000718  B8 00000000			mov eax,0
+ 0000071D  E8 00000000 E		call GetMseconds
+ 00000722  8B 1D 00000180 R		mov ebx,msec
+ 00000728  81 C3 000003E8		add ebx,TICK
+ 0000072E  3B C3			cmp eax,ebx
+ 00000730  61				popad
+ 00000731  0F 82 00000083		jb READK
+
+ 00000737  9C				pushfd
+ 00000738  81 05 00000180 R		add msec,TICK
 	   000003E8
- 0000010C  9D				popfd
- 0000010D  C6 05 00000006 R		mov correct,2
+ 00000742  C6 05 0000017B R		mov correct,2
 	   02
 						;falls one line
- 00000114  FE C3			inc bl
- 00000116  EB 0B			jmp NOINPUT
- 00000118			READK:
-						;reads char
- 00000118  53				push ebx
- 00000119  E8 00000000 E		call ReadKey
- 0000011E  5B				pop ebx
- 0000011F  75 0E			jnz READ
- 00000121  EB B7			jmp TIME
- 00000123			NOINPUT:
- 00000123  9C				pushfd
-						;clear screen before print next line
- 00000124  E8 00000000 E		call Clrscr
- 00000129  9D				popfd
- 0000012A  E9 FFFFFF0A			jmp FALL
-
- 0000012F			READ:
-							;check input
- 0000012F  3A 86 00000000 R			cmp al, string[esi]
- 00000135  75 09				jnz WRONG
- 00000137				RIGHT:
- 00000137  C6 05 00000006 R			mov correct,1
-	   01
- 0000013E  EB 09				jmp CONT
- 00000140				WRONG:
- 00000140  C6 05 00000006 R			mov correct,0
+ 00000749  FE 05 00000179 R		inc cc[1]
+ 0000074F  C6 05 00000224 R		mov missed,0
 	   00
- 00000147  EB 02				jmp NOCONT
- 00000149				CONT:
- 00000149  FE C7				inc bh
- 0000014B				NOCONT:
- 0000014B  EB D6				jmp NOINPUT
+						;checks if word hit line
+ 00000756  80 3D 00000179 R		cmp cc[1],LINEHEIGHT
+	   1B
+ 0000075D  72 31			jb TIMER
 
- 0000014D			DONE:
+						;adds missed characters to totalcount
+ 0000075F  60				pushad
+ 00000760  A1 00000174 R		mov eax, current_size
+ 00000765  0F B6 1D			movzx ebx, cc[0]
+	   00000178 R
+ 0000076C  0F B6 0D			movzx ecx, startposx
+	   0000017A R
+ 00000773  2B D9			sub ebx,ecx
+ 00000775  2B C3			sub eax,ebx
+ 00000777  01 05 00000214 R		add totalcount,eax
+ 0000077D  C6 05 00000224 R		mov missed,1
+	   01
+ 00000784  61				popad
+ 00000785  FF 05 00000220 R		inc wordsmissed
+ 0000078B  E9 00000080			jmp MISSEDWORD	; move to next word
+
+ 00000790			TIMER: ; prints current second elapsed in top right
+					mGotoxy 115,1
+ 00000790  52		     1		push edx
+ 00000791  B6 01	     1		mov  dh,1
+ 00000793  B2 73	     1		mov  dl,115
+ 00000795  E8 00000000 E     1		call Gotoxy
+ 0000079A  5A		     1		pop  edx
+ 0000079B  A1 00000180 R		mov eax, msec
+ 000007A0  2B 05 00000184 R		sub eax,StartTime
+					;divide start time by TICK
+ 000007A6  C1 E8 0A			shr eax,10
+ 000007A9  A3 00000210 R		mov second, eax
+ 000007AE  83 F8 1E			cmp eax,LIMIT
+ 000007B1  0F 83 000000EA		jae FIN
+ 000007B7  9D				popfd
+ 000007B8  EB 0E			jmp NOINPUT
+
+ 000007BA			READK:
+						;reads char
+ 000007BA  53				push ebx
+ 000007BB  E8 00000000 E		call ReadKey
+ 000007C0  5B				pop ebx
+ 000007C1  75 11			jnz READ
+ 000007C3  E9 FFFFFF3C			jmp TIME
+
+ 000007C8			NOINPUT:
+ 000007C8  9C				pushfd
+						;clear screen before print next line
+ 000007C9  E8 00000000 E		call Clrscr
+ 000007CE  9D				popfd
+ 000007CF  E9 FFFFFCA4			jmp FALL
+
+ 000007D4			READ:
+							;check input
+ 000007D4  3A 86 00000160 R			cmp al, current[esi]
+ 000007DA  75 15				jnz WRONG
+ 000007DC				RIGHT:
+ 000007DC  C6 05 0000017B R			mov correct,1
+	   01
+ 000007E3  FF 05 00000214 R			inc totalcount
+ 000007E9  FF 05 00000218 R			inc correctcount
+ 000007EF  EB 0F				jmp CONT
+ 000007F1				WRONG:
+ 000007F1  C6 05 0000017B R			mov correct,0
+	   00
+ 000007F8  FF 05 00000214 R			inc totalcount
+ 000007FE  EB 06				jmp NOCONT
+ 00000800				CONT:
+ 00000800  FE 05 00000178 R			inc cc[0]
+ 00000806				NOCONT:
+ 00000806  EB C0				jmp NOINPUT
+					
+ 00000808			DONE:
+ 00000808  FF 05 0000021C R		inc wordstyped
+ 0000080E  EB 00			jmp CONTINUE
+
+ 00000810			MISSEDWORD:
+ 00000810			CONTINUE:
+ 00000810  60				pushad
+ 00000811  66| A1			mov ax, word ptr current
+	   00000160 R
+ 00000817  66| 8B 1D			mov bx, word ptr string1
+	   00000000 R
+ 0000081E  66| 3B C3			cmp ax,bx
+ 00000821  60				pushad
+ 00000822  9C				pushfd
+ 00000823  E8 00000000 E		call ClrScr	
+ 00000828  9D				popfd
+ 00000829  61				popad
+ 0000082A  0F 84 FFFFFAD7		je SET2
+
+ 00000830  66| 8B 1D			mov bx, word ptr string2
+	   00000050 R
+ 00000837  66| 3B C3			cmp ax,bx
+ 0000083A  60				pushad
+ 0000083B  9C				pushfd
+ 0000083C  E8 00000000 E		call ClrScr	
+ 00000841  9D				popfd
+ 00000842  61				popad
+ 00000843  0F 84 FFFFFB15		je SET3
+
+ 00000849  66| 8B 1D			mov bx, word ptr string3
+	   000000A0 R
+ 00000850  66| 3B C3			cmp ax,bx
+ 00000853  60				pushad
+ 00000854  9C				pushfd
+ 00000855  E8 00000000 E		call ClrScr	
+ 0000085A  9D				popfd
+ 0000085B  61				popad
+ 0000085C  0F 84 FFFFFB50		je SET4
+
+ 00000862  66| 8B 1D			mov bx, word ptr string4
+	   000000F0 R
+ 00000869  66| 3B C3			cmp ax,bx
+ 0000086C  60				pushad
+ 0000086D  9C				pushfd
+ 0000086E  E8 00000000 E		call ClrScr	
+ 00000873  9D				popfd
+ 00000874  61				popad
+ 00000875  0F 84 FFFFFA2F		je SET1
+ 0000087B			COMPLETE:
+ 0000087B  E8 00000000 E		call ClrScr
+					mGotoxy 50,3
+ 00000880  52		     1		push edx
+ 00000881  B6 03	     1		mov  dh,3
+ 00000883  B2 32	     1		mov  dl,50
+ 00000885  E8 00000000 E     1		call Gotoxy
+ 0000088A  5A		     1		pop  edx
+					mWrite "Completed all words!"
+ 0000037F		     1		.data		
+ 0000037F 43 6F 6D 70 6C     1		??0005 BYTE "Completed all words!",0	
+	   65 74 65 64 20
+	   61 6C 6C 20 77
+	   6F 72 64 73 21
+	   00
+ 0000088B		     1		.code
+ 0000088B  52		     1		push	edx
+ 0000088C  BA 0000037F R     1		mov	edx,OFFSET ??0005
+ 00000891  E8 00000000 E     1		call	WriteString
+ 00000896  5A		     1		pop	edx
+ 00000897  B8 000003E8			mov eax, 1000
+ 0000089C  E8 00000000 E		call Delay
+ 000008A1			FIN:
+					;set white text / black bkg
+ 000008A1  B8 0000000F			mov eax, 15+(0*16)
+ 000008A6  E8 00000000 E		call SetTextColor
+					mGotoxy 0,0
+ 000008AB  52		     1		push edx
+ 000008AC  B6 00	     1		mov  dh,0
+ 000008AE  B2 00	     1		mov  dl,0
+ 000008B0  E8 00000000 E     1		call Gotoxy
+ 000008B5  5A		     1		pop  edx
+ 000008B6  E8 00000000 E		call ClrScr
+					mGotoxy 50,3
+ 000008BB  52		     1		push edx
+ 000008BC  B6 03	     1		mov  dh,3
+ 000008BE  B2 32	     1		mov  dl,50
+ 000008C0  E8 00000000 E     1		call Gotoxy
+ 000008C5  5A		     1		pop  edx
+					mWrite "Words Typed: "
+ 00000394		     1		.data		
+ 00000394 57 6F 72 64 73     1		??0006 BYTE "Words Typed: ",0	
+	   20 54 79 70 65
+	   64 3A 20 00
+ 000008C6		     1		.code
+ 000008C6  52		     1		push	edx
+ 000008C7  BA 00000394 R     1		mov	edx,OFFSET ??0006
+ 000008CC  E8 00000000 E     1		call	WriteString
+ 000008D1  5A		     1		pop	edx
+ 000008D2  A1 0000021C R		mov eax, wordstyped
+ 000008D7  E8 00000000 E		call WriteDec
+					mGotoxy 50,5
+ 000008DC  52		     1		push edx
+ 000008DD  B6 05	     1		mov  dh,5
+ 000008DF  B2 32	     1		mov  dl,50
+ 000008E1  E8 00000000 E     1		call Gotoxy
+ 000008E6  5A		     1		pop  edx
+					mWrite "Words Missed: "
+ 000003A2		     1		.data		
+ 000003A2 57 6F 72 64 73     1		??0007 BYTE "Words Missed: ",0	
+	   20 4D 69 73 73
+	   65 64 3A 20 00
+ 000008E7		     1		.code
+ 000008E7  52		     1		push	edx
+ 000008E8  BA 000003A2 R     1		mov	edx,OFFSET ??0007
+ 000008ED  E8 00000000 E     1		call	WriteString
+ 000008F2  5A		     1		pop	edx
+ 000008F3  A1 00000220 R		mov eax, wordsmissed
+ 000008F8  E8 00000000 E		call WriteDec
+
+
+					mGotoxy 47,7
+ 000008FD  52		     1		push edx
+ 000008FE  B6 07	     1		mov  dh,7
+ 00000900  B2 2F	     1		mov  dl,47
+ 00000902  E8 00000000 E     1		call Gotoxy
+ 00000907  5A		     1		pop  edx
+					mWrite "Words Per Minute: "
+ 000003B1		     1		.data		
+ 000003B1 57 6F 72 64 73     1		??0008 BYTE "Words Per Minute: ",0	
+	   20 50 65 72 20
+	   4D 69 6E 75 74
+	   65 3A 20 00
+ 00000908		     1		.code
+ 00000908  52		     1		push	edx
+ 00000909  BA 000003B1 R     1		mov	edx,OFFSET ??0008
+ 0000090E  E8 00000000 E     1		call	WriteString
+ 00000913  5A		     1		pop	edx
+ 00000914  A1 00000180 R		mov eax, msec
+ 00000919  2B 05 00000184 R		sub eax, StartTime
+ 0000091F  C1 E8 09			shr eax, 9
+ 00000922  8B D8			mov ebx, eax
+ 00000924  A1 0000021C R		mov eax, wordstyped
+ 00000929  B9 0000003C			mov	ecx,60
+ 0000092E  F7 E1			mul ecx
+ 00000930  F7 F3			div ebx
+ 00000932  D1 E0			shl eax,1
+ 00000934  E8 00000000 E		call WriteDec
+
+
+					mGotoxy 42,9
+ 00000939  52		     1		push edx
+ 0000093A  B6 09	     1		mov  dh,9
+ 0000093C  B2 2A	     1		mov  dl,42
+ 0000093E  E8 00000000 E     1		call Gotoxy
+ 00000943  5A		     1		pop  edx
+					mWrite "Accuracy: "
+ 000003C4		     1		.data		
+ 000003C4 41 63 63 75 72     1		??0009 BYTE "Accuracy: ",0	
+	   61 63 79 3A 20
+	   00
+ 00000944		     1		.code
+ 00000944  52		     1		push	edx
+ 00000945  BA 000003C4 R     1		mov	edx,OFFSET ??0009
+ 0000094A  E8 00000000 E     1		call	WriteString
+ 0000094F  5A		     1		pop	edx
+ 00000950  A1 00000218 R		mov eax, correctcount
+ 00000955  E8 00000000 E		call WriteDec
+					mWrite " / "
+ 000003CF		     1		.data		
+ 000003CF 20 2F 20 00	     1		??000A BYTE " / ",0	
+ 0000095A		     1		.code
+ 0000095A  52		     1		push	edx
+ 0000095B  BA 000003CF R     1		mov	edx,OFFSET ??000A
+ 00000960  E8 00000000 E     1		call	WriteString
+ 00000965  5A		     1		pop	edx
+ 00000966  A1 00000214 R		mov eax, totalcount
+ 0000096B  E8 00000000 E		call WriteDec
+					mWrite " characters = "
+ 000003D3		     1		.data		
+ 000003D3 20 63 68 61 72     1		??000B BYTE " characters = ",0	
+	   61 63 74 65 72
+	   73 20 3D 20 00
+ 00000970		     1		.code
+ 00000970  52		     1		push	edx
+ 00000971  BA 000003D3 R     1		mov	edx,OFFSET ??000B
+ 00000976  E8 00000000 E     1		call	WriteString
+ 0000097B  5A		     1		pop	edx
+
+ 0000097C  A1 00000218 R		mov eax, correctcount
+ 00000981  BB 00000064			mov ebx, 100
+ 00000986  F7 E3			mul ebx
+ 00000988  8B 1D 00000214 R		mov ebx,totalcount
+ 0000098E  F7 F3			div ebx
+ 00000990  E8 00000000 E		call WriteDec
+					mWrite "."
+ 000003E2		     1		.data		
+ 000003E2 2E 00		     1		??000C BYTE ".",0	
+ 00000995		     1		.code
+ 00000995  52		     1		push	edx
+ 00000996  BA 000003E2 R     1		mov	edx,OFFSET ??000C
+ 0000099B  E8 00000000 E     1		call	WriteString
+ 000009A0  5A		     1		pop	edx
+ 000009A1  8B C2			mov eax,edx
+ 000009A3  BB 00000064			mov ebx,100
+ 000009A8  F7 E3			mul ebx
+ 000009AA  8B 1D 00000214 R		mov ebx, totalcount
+ 000009B0  F7 F3			div ebx
+ 000009B2  E8 00000000 E		call WriteDec
+					mWrite "%"
+ 000003E4		     1		.data		
+ 000003E4 25 00		     1		??000D BYTE "%",0	
+ 000009B7		     1		.code
+ 000009B7  52		     1		push	edx
+ 000009B8  BA 000003E4 R     1		mov	edx,OFFSET ??000D
+ 000009BD  E8 00000000 E     1		call	WriteString
+ 000009C2  5A		     1		pop	edx
+					mGotoxy 42,50
+ 000009C3  52		     1		push edx
+ 000009C4  B6 32	     1		mov  dh,50
+ 000009C6  B2 2A	     1		mov  dl,42
+ 000009C8  E8 00000000 E     1		call Gotoxy
+ 000009CD  5A		     1		pop  edx
 					
 
 					invoke ExitProcess,0
- 00000154			main endp
-				end main
-Microsoft (R) Macro Assembler Version 14.37.32824.0	    12/11/23 15:23:09
+ 000009D5			main endp
+				end main 
+Microsoft (R) Macro Assembler Version 14.38.33130.0	    12/12/23 14:40:12
 main.asm						     Symbols 2 - 1
 
 
@@ -293,8 +1204,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000013 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000154 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 000003E6 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000009D5 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -401,24 +1312,69 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000154 Public STDCALL
-  FALL . . . . . . . . . . . . .	L Near	 00000039 _TEXT	
-  CHECK  . . . . . . . . . . . .	L Near	 0000004C _TEXT	
-  NEUTRAL  . . . . . . . . . . .	L Near	 00000060 _TEXT	
-  G  . . . . . . . . . . . . . .	L Near	 0000006E _TEXT	
-  R  . . . . . . . . . . . . . .	L Near	 00000081 _TEXT	
-  PRINT  . . . . . . . . . . . .	L Near	 00000094 _TEXT	
-  REST . . . . . . . . . . . . .	L Near	 000000A9 _TEXT	
-  RESTPRINT  . . . . . . . . . .	L Near	 000000C1 _TEXT	
-  TIME . . . . . . . . . . . . .	L Near	 000000DA _TEXT	
-  READK  . . . . . . . . . . . .	L Near	 00000118 _TEXT	
-  NOINPUT  . . . . . . . . . . .	L Near	 00000123 _TEXT	
-  READ . . . . . . . . . . . . .	L Near	 0000012F _TEXT	
-  RIGHT  . . . . . . . . . . . .	L Near	 00000137 _TEXT	
-  WRONG  . . . . . . . . . . . .	L Near	 00000140 _TEXT	
-  CONT . . . . . . . . . . . . .	L Near	 00000149 _TEXT	
-  NOCONT . . . . . . . . . . . .	L Near	 0000014B _TEXT	
-  DONE . . . . . . . . . . . . .	L Near	 0000014D _TEXT	
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 000009D5 Public STDCALL
+  GAME . . . . . . . . . . . . .	L Near	 0000009E _TEXT	
+  FLOURISH . . . . . . . . . . .	L Near	 000000B3 _TEXT	
+  HERE . . . . . . . . . . . . .	L Near	 000000CB _TEXT	
+  FILEW1 . . . . . . . . . . . .	L Near	 0000013E _TEXT	
+  WORD1  . . . . . . . . . . . .	L Near	 00000155 _TEXT	
+  NEWWORD1 . . . . . . . . . . .	L Near	 0000016E _TEXT	
+  FILEDONE1  . . . . . . . . . .	L Near	 0000016F _TEXT	
+  FILEW2 . . . . . . . . . . . .	L Near	 00000199 _TEXT	
+  WORD2  . . . . . . . . . . . .	L Near	 000001B0 _TEXT	
+  NEWWORD2 . . . . . . . . . . .	L Near	 000001C9 _TEXT	
+  FILEDONE2  . . . . . . . . . .	L Near	 000001CA _TEXT	
+  FILEW3 . . . . . . . . . . . .	L Near	 000001EE _TEXT	
+  WORD3  . . . . . . . . . . . .	L Near	 00000205 _TEXT	
+  NEWWORD3 . . . . . . . . . . .	L Near	 0000021E _TEXT	
+  FILEDONE3  . . . . . . . . . .	L Near	 0000021F _TEXT	
+  FILEW4 . . . . . . . . . . . .	L Near	 00000243 _TEXT	
+  WORD4  . . . . . . . . . . . .	L Near	 0000025A _TEXT	
+  NEWWORD4 . . . . . . . . . . .	L Near	 00000273 _TEXT	
+  FILEDONE4  . . . . . . . . . .	L Near	 00000274 _TEXT	
+  SETFSIZE . . . . . . . . . . .	L Near	 00000295 _TEXT	
+  SET1 . . . . . . . . . . . . .	L Near	 000002AA _TEXT	
+  SET1C  . . . . . . . . . . . .	L Near	 000002AC _TEXT	
+  FIRSTIT  . . . . . . . . . . .	L Near	 000002BD _TEXT	
+  SET2 . . . . . . . . . . . . .	L Near	 00000307 _TEXT	
+  SET2C  . . . . . . . . . . . .	L Near	 0000030C _TEXT	
+  SET3 . . . . . . . . . . . . .	L Near	 0000035E _TEXT	
+  SET3C  . . . . . . . . . . . .	L Near	 00000363 _TEXT	
+  SET4 . . . . . . . . . . . . .	L Near	 000003B2 _TEXT	
+  SET4C  . . . . . . . . . . . .	L Near	 000003B7 _TEXT	
+  ASSIGN1  . . . . . . . . . . .	L Near	 00000406 _TEXT	
+  ASSIGN2  . . . . . . . . . . .	L Near	 00000417 _TEXT	
+  ASSIGN3  . . . . . . . . . . .	L Near	 00000428 _TEXT	
+  ASSIGN4  . . . . . . . . . . .	L Near	 00000439 _TEXT	
+  DISPLAYSTR . . . . . . . . . .	L Near	 0000044A _TEXT	
+  FALL . . . . . . . . . . . . .	L Near	 00000478 _TEXT	
+  BOTLINE  . . . . . . . . . . .	L Near	 000004A4 _TEXT	
+  BOTLINE2 . . . . . . . . . . .	L Near	 000004B5 _TEXT	
+  CHECK  . . . . . . . . . . . .	L Near	 000004F4 _TEXT	
+  NEUTRAL  . . . . . . . . . . .	L Near	 00000508 _TEXT	
+  G  . . . . . . . . . . . . . .	L Near	 00000516 _TEXT	
+  R  . . . . . . . . . . . . . .	L Near	 00000529 _TEXT	
+  PRINT  . . . . . . . . . . . .	L Near	 0000053C _TEXT	
+  REST . . . . . . . . . . . . .	L Near	 00000572 _TEXT	
+  RESTPRINT  . . . . . . . . . .	L Near	 00000598 _TEXT	
+  CASCADE  . . . . . . . . . . .	L Near	 000005A8 _TEXT	
+  PRINT2 . . . . . . . . . . . .	L Near	 000005FF _TEXT	
+  PRINT3 . . . . . . . . . . . .	L Near	 00000656 _TEXT	
+  PRINT4 . . . . . . . . . . . .	L Near	 000006AD _TEXT	
+  TIME . . . . . . . . . . . . .	L Near	 00000704 _TEXT	
+  TIMER  . . . . . . . . . . . .	L Near	 00000790 _TEXT	
+  READK  . . . . . . . . . . . .	L Near	 000007BA _TEXT	
+  NOINPUT  . . . . . . . . . . .	L Near	 000007C8 _TEXT	
+  READ . . . . . . . . . . . . .	L Near	 000007D4 _TEXT	
+  RIGHT  . . . . . . . . . . . .	L Near	 000007DC _TEXT	
+  WRONG  . . . . . . . . . . . .	L Near	 000007F1 _TEXT	
+  CONT . . . . . . . . . . . . .	L Near	 00000800 _TEXT	
+  NOCONT . . . . . . . . . . . .	L Near	 00000806 _TEXT	
+  DONE . . . . . . . . . . . . .	L Near	 00000808 _TEXT	
+  MISSEDWORD . . . . . . . . . .	L Near	 00000810 _TEXT	
+  CONTINUE . . . . . . . . . . .	L Near	 00000810 _TEXT	
+  COMPLETE . . . . . . . . . . .	L Near	 0000087B _TEXT	
+  FIN  . . . . . . . . . . . . .	L Near	 000008A1 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -428,6 +1384,20 @@ Symbols:
 
                 N a m e                 Type     Value    Attr
 
+??0000 . . . . . . . . . . . . .	Byte	 00000340 _DATA	
+??0001 . . . . . . . . . . . . .	Byte	 0000034C _DATA	
+??0002 . . . . . . . . . . . . .	Byte	 00000363 _DATA	
+??0003 . . . . . . . . . . . . .	Byte	 00000375 _DATA	
+??0004 . . . . . . . . . . . . .	Byte	 0000037D _DATA	
+??0005 . . . . . . . . . . . . .	Byte	 0000037F _DATA	
+??0006 . . . . . . . . . . . . .	Byte	 00000394 _DATA	
+??0007 . . . . . . . . . . . . .	Byte	 000003A2 _DATA	
+??0008 . . . . . . . . . . . . .	Byte	 000003B1 _DATA	
+??0009 . . . . . . . . . . . . .	Byte	 000003C4 _DATA	
+??000A . . . . . . . . . . . . .	Byte	 000003CF _DATA	
+??000B . . . . . . . . . . . . .	Byte	 000003D3 _DATA	
+??000C . . . . . . . . . . . . .	Byte	 000003E2 _DATA	
+??000D . . . . . . . . . . . . .	Byte	 000003E4 _DATA	
 @CodeSize  . . . . . . . . . . .	Number	 00000000h   
 @DataSize  . . . . . . . . . . .	Number	 00000000h   
 @Interface . . . . . . . . . . .	Number	 00000003h   
@@ -438,6 +1408,8 @@ Symbols:
 @fardata . . . . . . . . . . . .	Text   	 FLAT
 @stack . . . . . . . . . . . . .	Text   	 FLAT
 ALT_MASK . . . . . . . . . . . .	Number	 00000003h   
+BUFMAXHEX  . . . . . . . . . . .	Number	 00000100h   
+BUFMAX . . . . . . . . . . . . .	Number	 00000100h   
 CAPSLOCK_ON  . . . . . . . . . .	Number	 00000080h   
 CREATE_ALWAYS  . . . . . . . . .	Number	 00000002h   
 CREATE_NEW . . . . . . . . . . .	Number	 00000001h   
@@ -510,6 +1482,8 @@ KEY_EVENT  . . . . . . . . . . .	Number	 00000001h
 KEY_MASKS  . . . . . . . . . . .	Number	 0000001Fh   
 LEFT_ALT_PRESSED . . . . . . . .	Number	 00000002h   
 LEFT_CTRL_PRESSED  . . . . . . .	Number	 00000008h   
+LIMIT  . . . . . . . . . . . . .	Number	 0000001Eh   
+LINEHEIGHT . . . . . . . . . . .	Number	 0000001Bh   
 MB_ABORTRETRYIGNORE  . . . . . .	Number	 00000002h   
 MB_APPLMODAL . . . . . . . . . .	Number	 00000000h   
 MB_CANCELTRYCONTINUE . . . . . .	Number	 00000006h   
@@ -553,8 +1527,9 @@ STD_ERROR_HANDLE . . . . . . . .	Number	 -0000000Ch
 STD_INPUT_HANDLE . . . . . . . .	Number	 -0000000Ah   
 STD_OUTPUT_HANDLE  . . . . . . .	Number	 -0000000Bh   
 SetConsoleTitle  . . . . . . . .	Text   	 SetConsoleTitleA
-StartTime  . . . . . . . . . . .	DWord	 0000000F _DATA	
+StartTime  . . . . . . . . . . .	DWord	 00000184 _DATA	
 TAB  . . . . . . . . . . . . . .	Number	 00000009h   
+TICK . . . . . . . . . . . . . .	Number	 000003E8h   
 TRUE . . . . . . . . . . . . . .	Number	 00000001h   
 TRUNCATE_EXISTING  . . . . . . .	Number	 00000005h   
 VK_11  . . . . . . . . . . . . .	Number	 000000BDh   
@@ -641,23 +1616,60 @@ WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
-correct  . . . . . . . . . . . .	Byte	 00000006 _DATA	
+buffer . . . . . . . . . . . . .	Byte	 00000237 _DATA	
+bufind . . . . . . . . . . . . .	DWord	 0000033C _DATA	
+bytesRead  . . . . . . . . . . .	DWord	 00000338 _DATA	
+casc1  . . . . . . . . . . . . .	Byte	 00000148 _DATA	
+casc2  . . . . . . . . . . . . .	Byte	 0000014A _DATA	
+casc3  . . . . . . . . . . . . .	Byte	 0000014C _DATA	
+casc4  . . . . . . . . . . . . .	Byte	 0000014E _DATA	
+cc . . . . . . . . . . . . . . .	Byte	 00000178 _DATA	
+coord1 . . . . . . . . . . . . .	Byte	 00000140 _DATA	
+coord2 . . . . . . . . . . . . .	Byte	 00000142 _DATA	
+coord3 . . . . . . . . . . . . .	Byte	 00000144 _DATA	
+coord4 . . . . . . . . . . . . .	Byte	 00000146 _DATA	
+correctcount . . . . . . . . . .	DWord	 00000218 _DATA	
+correct  . . . . . . . . . . . .	Byte	 0000017B _DATA	
+current_size . . . . . . . . . .	DWord	 00000174 _DATA	
+current  . . . . . . . . . . . .	Byte	 00000160 _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
+filehandle . . . . . . . . . . .	DWord	 00000233 _DATA	
+filename . . . . . . . . . . . .	Byte	 0000022A _DATA	
+firstsize  . . . . . . . . . . .	DWord	 00000226 _DATA	
+first  . . . . . . . . . . . . .	Byte	 00000225 _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
-lastColor  . . . . . . . . . . .	DWord	 00000007 _DATA	
+lastColor  . . . . . . . . . . .	DWord	 0000017C _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
 lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
 lightGray  . . . . . . . . . . .	Number	 00000007h   
 lightGreen . . . . . . . . . . .	Number	 0000000Ah   
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
+line . . . . . . . . . . . . . .	Byte	 00000198 _DATA	
 magenta  . . . . . . . . . . . .	Number	 00000005h   
-msec . . . . . . . . . . . . . .	DWord	 0000000B _DATA	
+missed . . . . . . . . . . . . .	Byte	 00000224 _DATA	
+msec . . . . . . . . . . . . . .	DWord	 00000180 _DATA	
+off1 . . . . . . . . . . . . . .	DWord	 00000188 _DATA	
+off2 . . . . . . . . . . . . . .	DWord	 0000018C _DATA	
+off3 . . . . . . . . . . . . . .	DWord	 00000190 _DATA	
+off4 . . . . . . . . . . . . . .	DWord	 00000194 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
-string . . . . . . . . . . . . .	Byte	 00000000 _DATA	
+second . . . . . . . . . . . . .	DWord	 00000210 _DATA	
+size1  . . . . . . . . . . . . .	DWord	 00000150 _DATA	
+size2  . . . . . . . . . . . . .	DWord	 00000154 _DATA	
+size3  . . . . . . . . . . . . .	DWord	 00000158 _DATA	
+size4  . . . . . . . . . . . . .	DWord	 0000015C _DATA	
+startposx  . . . . . . . . . . .	Byte	 0000017A _DATA	
+string1  . . . . . . . . . . . .	Byte	 00000000 _DATA	
+string2  . . . . . . . . . . . .	Byte	 00000050 _DATA	
+string3  . . . . . . . . . . . .	Byte	 000000A0 _DATA	
+string4  . . . . . . . . . . . .	Byte	 000000F0 _DATA	
+totalcount . . . . . . . . . . .	DWord	 00000214 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
+wordsmissed  . . . . . . . . . .	DWord	 00000220 _DATA	
+wordstyped . . . . . . . . . . .	DWord	 0000021C _DATA	
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   
 
