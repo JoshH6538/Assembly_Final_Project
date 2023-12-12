@@ -6,8 +6,12 @@ INCLUDE Macros.inc
 	correct byte 2 
 	lastColor dword 15+(0*16)
 	msec DWORD 0
+	StartTime DWORD ?
 .code
 main proc
+	call GetMseconds
+	mov StartTime, eax
+	mov msec,eax
 		;set white text / black bkg
 	mov eax, 15+(0*16)
 	call SetTextColor
@@ -74,14 +78,16 @@ FALL:
 		inc edi
 		loop RESTPRINT
 		
-
 TIME:
 	mGotoxy bh,bl
-	push eax
+	pushad
+	mov eax,0
 	call GetMseconds
-	cmp msec, eax
-	pop eax
-	jae READK
+	mov ebx,msec
+	add ebx,1000
+	cmp eax,ebx
+	popad
+	jb READK
 	pushfd
 	add msec,1000
 	popfd
