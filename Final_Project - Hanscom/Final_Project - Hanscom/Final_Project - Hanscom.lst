@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.38.33130.0	    12/12/23 14:40:12
+Microsoft (R) Macro Assembler Version 14.38.33130.0	    12/13/23 00:12:34
 main.asm						     Page 1 - 1
 
 
@@ -88,9 +88,9 @@ main.asm						     Page 1 - 1
  00000225 01				first byte 1
  00000226 00000000			firstsize dword ?
 
- = 0000001E				LIMIT=30
+ = 0000003C				LIMIT=60
  = 0000001B				LINEHEIGHT=27
- = 000003E8			    TICK=1000
+ = 000000FA			    TICK=250
  = 00000100				BUFMAX=256
  = 00000100				BUFMAXHEX=100h
 
@@ -410,7 +410,7 @@ main.asm						     Page 1 - 1
  00000334  C6 05 0000017B R		mov correct,2
 	   02
 					;mov current_size, lengthof string2
- 0000033B  8A 1D 00000142 R		mov bl, coord2[0]
+ 0000033B  8A 1D 00000142 R	mov bl, coord2[0]
  00000341  88 1D 00000178 R		mov cc[0],bl
  00000347  88 1D 0000017A R		mov startposx,bl
  0000034D  8A 1D 0000014B R		mov bl, casc2[1]
@@ -657,7 +657,7 @@ main.asm						     Page 1 - 1
  000005D2  B8 00000000				mov eax,0
  000005D7  E8 00000000 E			call GetMseconds
  000005DC  8B 1D 00000188 R			mov ebx,off1
- 000005E2  81 C3 000003E8			add ebx,TICK
+ 000005E2  81 C3 000000FA			add ebx,TICK
  000005E8  3B C3				cmp eax,ebx
  000005EA  61					popad
  000005EB  72 12				jb PRINT2
@@ -690,7 +690,7 @@ main.asm						     Page 1 - 1
  00000629  B8 00000000				mov eax,0
  0000062E  E8 00000000 E			call GetMseconds
  00000633  8B 1D 0000018C R			mov ebx,off2
- 00000639  81 C3 000003E8			add ebx,TICK
+ 00000639  81 C3 000000FA			add ebx,TICK
  0000063F  3B C3				cmp eax,ebx
  00000641  61					popad
  00000642  72 12				jb PRINT3
@@ -723,7 +723,7 @@ main.asm						     Page 1 - 1
  00000680  B8 00000000				mov eax,0
  00000685  E8 00000000 E			call GetMseconds
  0000068A  8B 1D 00000190 R			mov ebx,off3
- 00000690  81 C3 000003E8			add ebx,TICK
+ 00000690  81 C3 000000FA			add ebx,TICK
  00000696  3B C3				cmp eax,ebx
  00000698  61					popad
  00000699  72 12				jb PRINT4
@@ -756,7 +756,7 @@ main.asm						     Page 1 - 1
  000006D7  B8 00000000				mov eax,0
  000006DC  E8 00000000 E			call GetMseconds
  000006E1  8B 1D 00000194 R			mov ebx,off4
- 000006E7  81 C3 000003E8			add ebx,TICK
+ 000006E7  81 C3 000000FA			add ebx,TICK
  000006ED  3B C3				cmp eax,ebx
  000006EF  61					popad
  000006F0  72 12				jb TIME
@@ -779,14 +779,14 @@ main.asm						     Page 1 - 1
  00000718  B8 00000000			mov eax,0
  0000071D  E8 00000000 E		call GetMseconds
  00000722  8B 1D 00000180 R		mov ebx,msec
- 00000728  81 C3 000003E8		add ebx,TICK
+ 00000728  81 C3 000000FA		add ebx,TICK
  0000072E  3B C3			cmp eax,ebx
  00000730  61				popad
  00000731  0F 82 00000083		jb READK
 
  00000737  9C				pushfd
  00000738  81 05 00000180 R		add msec,TICK
-	   000003E8
+	   000000FA
  00000742  C6 05 0000017B R		mov correct,2
 	   02
 						;falls one line
@@ -826,7 +826,7 @@ main.asm						     Page 1 - 1
 					;divide start time by TICK
  000007A6  C1 E8 0A			shr eax,10
  000007A9  A3 00000210 R		mov second, eax
- 000007AE  83 F8 1E			cmp eax,LIMIT
+ 000007AE  83 F8 3C			cmp eax,LIMIT
  000007B1  0F 83 000000EA		jae FIN
  000007B7  9D				popfd
  000007B8  EB 0E			jmp NOINPUT
@@ -1092,7 +1092,7 @@ main.asm						     Page 1 - 1
 					invoke ExitProcess,0
  000009D5			main endp
 				end main 
-Microsoft (R) Macro Assembler Version 14.38.33130.0	    12/12/23 14:40:12
+Microsoft (R) Macro Assembler Version 14.38.33130.0	    12/13/23 00:12:34
 main.asm						     Symbols 2 - 1
 
 
@@ -1482,7 +1482,7 @@ KEY_EVENT  . . . . . . . . . . .	Number	 00000001h
 KEY_MASKS  . . . . . . . . . . .	Number	 0000001Fh   
 LEFT_ALT_PRESSED . . . . . . . .	Number	 00000002h   
 LEFT_CTRL_PRESSED  . . . . . . .	Number	 00000008h   
-LIMIT  . . . . . . . . . . . . .	Number	 0000001Eh   
+LIMIT  . . . . . . . . . . . . .	Number	 0000003Ch   
 LINEHEIGHT . . . . . . . . . . .	Number	 0000001Bh   
 MB_ABORTRETRYIGNORE  . . . . . .	Number	 00000002h   
 MB_APPLMODAL . . . . . . . . . .	Number	 00000000h   
@@ -1529,7 +1529,7 @@ STD_OUTPUT_HANDLE  . . . . . . .	Number	 -0000000Bh
 SetConsoleTitle  . . . . . . . .	Text   	 SetConsoleTitleA
 StartTime  . . . . . . . . . . .	DWord	 00000184 _DATA	
 TAB  . . . . . . . . . . . . . .	Number	 00000009h   
-TICK . . . . . . . . . . . . . .	Number	 000003E8h   
+TICK . . . . . . . . . . . . . .	Number	 000000FAh   
 TRUE . . . . . . . . . . . . . .	Number	 00000001h   
 TRUNCATE_EXISTING  . . . . . . .	Number	 00000005h   
 VK_11  . . . . . . . . . . . . .	Number	 000000BDh   

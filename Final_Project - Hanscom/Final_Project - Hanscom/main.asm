@@ -50,9 +50,9 @@ INCLUDE Macros.inc
 	first byte 1
 	firstsize dword ?
 
-	LIMIT=30
+	LIMIT=60
 	LINEHEIGHT=27
-    TICK=1000
+    TICK=250
 	BUFMAX=256
 	BUFMAXHEX=100h
 
